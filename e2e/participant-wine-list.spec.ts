@@ -55,6 +55,18 @@ test("deltagaren ser blindnummer och status men aldrig vininformation", async ({
 
   await expect(page.locator("body")).not.toContainText("Barolo");
   await expect(page.locator("body")).not.toContainText("Vietti");
+  await expect(page.getByText("2 viner · du är med som Lisa")).toBeVisible();
+});
+
+test("visar rätt singularform '1 vin' när provningen har ett vin", async ({
+  context,
+  page,
+}) => {
+  const { tasting } = await createLiveTasting(owners, { wineCount: 1 });
+  await joinWithCookie(context, tasting.code, "Lisa");
+  await page.goto("/tasting");
+
+  await expect(page.getByText("1 vin · du är med som Lisa")).toBeVisible();
 });
 
 test("ett betygsatt vin visar det egna betyget", async ({ context, page }) => {

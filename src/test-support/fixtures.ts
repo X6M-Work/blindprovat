@@ -51,17 +51,25 @@ export function createTestOwners() {
 export type TestOwners = ReturnType<typeof createTestOwners>;
 
 // En pågående provning med ett öppet och ett stängt vin och en deltagare.
-export async function createLiveTasting(owners: TestOwners) {
+export async function createLiveTasting(
+  owners: TestOwners,
+  options?: { wineCount?: number },
+) {
+  const count = options?.wineCount ?? 2;
   const ownerId = owners.createOwnerId();
   const tasting = await createTasting(ownerId, { name: "Betyg" });
   const openWine = unwrap(
     await addWine(ownerId, tasting.id, sampleWine),
     "Kunde inte lägga till vin",
   );
-  const closedWine = unwrap(
-    await addWine(ownerId, tasting.id, sampleWine),
-    "Kunde inte lägga till vin",
-  );
+  let closedWineId = "";
+  if (count > 1) {
+    const closedWine = unwrap(
+      await addWine(ownerId, tasting.id, sampleWine),
+      "Kunde inte lägga till vin",
+    );
+    closedWineId = closedWine.wine.id;
+  }
   await advanceTastingStatus(ownerId, tasting.id, "draft");
   await setWineOpen(ownerId, openWine.wine.id, true);
   const joined = unwrap(
@@ -73,6 +81,6 @@ export async function createLiveTasting(owners: TestOwners) {
     tasting,
     participant: joined.participant,
     openWineId: openWine.wine.id,
-    closedWineId: closedWine.wine.id,
+    closedWineId,
   };
 }
