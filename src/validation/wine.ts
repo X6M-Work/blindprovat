@@ -60,8 +60,8 @@ export type WineInput = z.infer<typeof wineInputSchema>;
 // som inte är ett tal blir NaN så att talregeln ger sitt felmeddelande.
 function numberFromForm(value: unknown): unknown {
   if (typeof value !== "string") return value;
-  const trimmed = value.trim();
-  return trimmed === "" ? null : Number(trimmed);
+  const stripped = value.replace(/\s/g, "");
+  return stripped === "" ? null : Number(stripped);
 }
 
 export const wineFormSchema = wineInputSchema.extend({
